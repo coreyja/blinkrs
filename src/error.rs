@@ -1,9 +1,13 @@
 use std::error::Error;
 use std::fmt;
 
+/// An Error from the USB Protocol
 #[derive(Debug)]
 pub enum BlinkError {
+  /// Could not find something.... Maybe a USB interface?
+  /// TODO: Make this doc better
   NotFound,
+  /// Could not list USB devices, wrapbs an rusb::Error
   DeviceListError(rusb::Error),
 }
 

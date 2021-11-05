@@ -3,9 +3,13 @@
 /// [`blink(1)`]: https://blink1.thingm.com
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Color {
+  /// An RGB number represented as three u8s
   Three(u8, u8, u8),
+  /// Equivelent to (255,0,0)
   Red,
+  /// Equivelent to (0,255,0)
   Green,
+  /// Equivelent to (0,0,255)
   Blue,
 }
 

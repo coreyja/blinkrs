@@ -25,6 +25,8 @@
 //!
 //! [blink(1)]: https://blink1.thingm.com
 
+#![deny(missing_docs)]
+
 use rusb::{request_type, Context, Device, DeviceHandle, Direction, Recipient, RequestType, UsbContext};
 use std::fmt;
 use std::time::Duration;
@@ -82,11 +84,13 @@ impl Blinkers {
     Blinkers { context: ctx }
   }
 
+  /// Create a new Blinkers object, by creating a new rusb::Context
   pub fn new() -> Result<Self, BlinkError> {
     let context: Context = Context::new()?;
     Ok(Blinkers::from_context(context))
   }
 
+  /// Sends the message to all the Blink1 devices connected
   pub fn send(&self, cmd: Message) -> Result<usize, BlinkError> {
     let devices = self.context.devices()?;
     devices
@@ -97,6 +101,7 @@ impl Blinkers {
       .map(|d| d.iter().sum())
   }
 
+  /// Count the number of USB devices that advertise as a Blink1
   pub fn device_count(&self) -> Result<usize, BlinkError> {
     let devices = self.context.devices()?;
     Ok(devices.iter().filter(is_blinker).count())

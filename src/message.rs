@@ -3,13 +3,19 @@ use super::Color;
 use std::time::Duration;
 
 #[derive(Debug, Copy, Clone)]
+/// Represents which LED to use on the m2 variant.
+/// This is ignored on the m1
 pub enum LedNum {
+  /// Use all/both LEDS
   All,
+  /// Use only LED1
   Led1,
+  /// Use only LED2
   Led2,
 }
 
 impl LedNum {
+  /// Get the u8 that is used in the blink1 USB protocol
   pub fn as_u8(&self) -> u8 {
     match self {
       LedNum::All => 0,
@@ -20,10 +26,15 @@ impl LedNum {
 }
 
 /// Represents a command processable by the specification outlined in the [blink1 docs](https://git.io/JenDr).
+/// Fade is the only message that supports sending to a specific LED since by trial and error that
+/// was the only one that worked (even though immediate is documented to work).
 #[derive(Debug, Copy, Clone)]
 pub enum Message {
+  /// Turn off the LEDs
   Off,
+  /// Fade to the specified color over the given duration. Supports using a specific LED
   Fade(Color, Duration, LedNum),
+  /// Set the LED(s) to the specified color without fading
   Immediate(Color),
 }
 
