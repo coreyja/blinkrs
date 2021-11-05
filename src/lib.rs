@@ -91,7 +91,7 @@ pub struct PatternLine {
 }
 
 /// Represents a pattern to play on the blink1
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Clone)]
 pub struct Pattern {
   /// The lines in the pattern
   pub lines: Vec<PatternLine>,
