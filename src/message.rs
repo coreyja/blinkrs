@@ -2,11 +2,28 @@ use super::constants::{FADE_COMMAND_ACTION, IMMEDIATE_COMMAND_ACTION};
 use super::Color;
 use std::time::Duration;
 
+#[derive(Debug, Copy, Clone)]
+pub enum LedNum {
+  All,
+  Led1,
+  Led2,
+}
+
+impl LedNum {
+  pub fn as_u8(&self) -> u8 {
+    match self {
+      LedNum::All => 0,
+      LedNum::Led1 => 1,
+      LedNum::Led2 => 2,
+    }
+  }
+}
+
 /// Represents a command processable by the specification outlined in the [blink1 docs](https://git.io/JenDr).
 #[derive(Debug, Copy, Clone)]
 pub enum Message {
   Off,
-  Fade(Color, Duration),
+  Fade(Color, Duration, LedNum),
   Immediate(Color),
 }
 
@@ -16,13 +33,13 @@ impl Message {
   pub fn buffer(&self) -> [u8; 8] {
     match self {
       Message::Off => Message::Immediate(Color::Three(0x00, 0x00, 0x00)).buffer(),
-      Message::Fade(color, duration) => {
+      Message::Fade(color, duration, ledn) => {
         let (r, g, b) = color.rgb();
         // Divide by 10 and truncate into two parts
         let dms = duration.as_millis().checked_div(10).unwrap_or(0) as u16;
         let th = dms.checked_shr(8).unwrap_or(0) as u8;
         let tl = dms.checked_rem(0xff).unwrap_or(0) as u8;
-        [0x01, FADE_COMMAND_ACTION, r, g, b, th, tl, 0x00]
+        [0x01, FADE_COMMAND_ACTION, r, g, b, th, tl, ledn.as_u8()]
       }
       Message::Immediate(color) => {
         let (r, g, b) = color.rgb();

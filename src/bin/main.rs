@@ -3,14 +3,18 @@ use std::error::Error;
 use std::io::stdin;
 use std::time::Duration;
 
-use blinkrs::{Blinkers, Color, Message};
+use blinkrs::{Blinkers, Color, LedNum, Message};
 
 fn parse_bits(bits: (&str, &str, &str, &str)) -> Result<Message, std::num::ParseIntError> {
   let secs = bits.0.parse::<u64>()?;
   let red = bits.1.parse::<u8>()?;
   let green = bits.2.parse::<u8>()?;
   let blue = bits.3.parse::<u8>()?;
-  Ok(Message::Fade(Color::Three(red, green, blue), Duration::new(secs, 0)))
+  Ok(Message::Fade(
+    Color::Three(red, green, blue),
+    Duration::new(secs, 0),
+    LedNum::All,
+  ))
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -54,7 +58,7 @@ fn main() -> Result<(), Box<dyn Error>> {
           }
         };
         println!("[debug] found fade {} for color {}", one, two);
-        Message::Fade(Color::from(two), dur)
+        Message::Fade(Color::from(two), dur, LedNum::All)
       }
       _ => Message::from(trimmed),
     };

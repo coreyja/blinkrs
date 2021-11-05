@@ -32,6 +32,7 @@ use std::time::Duration;
 pub use color::Color;
 use constants::{HID_FEATURE, HID_SET_REPORT, PRODUCT_ID, VENDOR_ID};
 pub use error::BlinkError;
+pub use message::LedNum;
 pub use message::Message;
 
 mod color;
