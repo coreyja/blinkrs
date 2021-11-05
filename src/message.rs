@@ -36,6 +36,23 @@ pub enum Message {
   Fade(Color, Duration, LedNum),
   /// Set the LED(s) to the specified color without fading
   Immediate(Color),
+  /// Set the color line pattern for the given position [position is the untyped u8]
+  SetLinePattern(Color, Duration, u8),
+  /// Set the Led Num. Doing this command BEFORE the SetLinePattern command will make the following
+  /// line patterns use only the specified led. This lasts until it is set again
+  /// Does NOT apply to usages of Fade and Immediate
+  SetLedNum(LedNum),
+  /// Start/stop the loop on the blink1
+  PlayLoop {
+    /// Whether to start or stop the loop
+    on: bool,
+    /// The position in the loop to start playing from
+    start_pos: u8,
+    /// The position in the loop to stop playing at
+    end_pos: u8,
+    /// How many times to loop over the animation
+    loop_count: u8,
+  },
 }
 
 impl Message {
@@ -46,7 +63,7 @@ impl Message {
       Message::Off => Message::Immediate(Color::Three(0x00, 0x00, 0x00)).buffer(),
       Message::Fade(color, duration, ledn) => {
         let (r, g, b) = color.rgb();
-        // Divide by 10 and truncate into two parts
+        // divide by 10 and truncate into two parts
         let dms = duration.as_millis().checked_div(10).unwrap_or(0) as u16;
         let th = dms.checked_shr(8).unwrap_or(0) as u8;
         let tl = dms.checked_rem(0xff).unwrap_or(0) as u8;
@@ -55,6 +72,27 @@ impl Message {
       Message::Immediate(color) => {
         let (r, g, b) = color.rgb();
         [0x01, IMMEDIATE_COMMAND_ACTION, r, g, b, 0x00, 0x00, 0x00]
+      }
+      &Message::SetLinePattern(color, duration, pos) => {
+        let (r, g, b) = color.rgb();
+
+        // divide by 10 and truncate into two parts
+        let dms = duration.as_millis().checked_div(10).unwrap_or(0) as u16;
+        let th = dms.checked_shr(8).unwrap_or(0) as u8;
+        let tl = dms.checked_rem(0xff).unwrap_or(0) as u8;
+
+        [0x01, 80, r, g, b, th, tl, pos]
+      }
+      &Message::SetLedNum(ledn) => [0x01, 108, ledn.as_u8(), 0, 0, 0, 0, 0],
+      &Message::PlayLoop {
+        on,
+        start_pos,
+        end_pos,
+        loop_count,
+      } => {
+        let on_u8 = if on { 1 } else { 0 };
+
+        [0x01, 112, on_u8, start_pos, end_pos, loop_count, 0, 0]
       }
     }
   }
