@@ -79,6 +79,23 @@ impl fmt::Debug for Blinkers {
   }
 }
 
+/// A single line of a pattern, without a position number
+#[derive(Debug, Copy, Clone)]
+pub struct PatternLine {
+  /// The color to fade to
+  pub color: Color,
+  /// How long the fading should take. 0 for immediate
+  pub duration: Duration,
+  /// Which LED(s) should this line use
+  pub ledn: LedNum,
+}
+
+/// Represents a pattern to play on the blink1
+pub struct Pattern {
+  /// The lines in the pattern
+  pub lines: Vec<PatternLine>,
+}
+
 impl Blinkers {
   fn from_context(ctx: Context) -> Self {
     Blinkers { context: ctx }
@@ -105,5 +122,27 @@ impl Blinkers {
   pub fn device_count(&self) -> Result<usize, BlinkError> {
     let devices = self.context.devices()?;
     Ok(devices.iter().filter(is_blinker).count())
+  }
+
+  /// Send an entire pattern to the Blink1 at once and then play it
+  /// This will set patterns line from 0 to N where N is `pattern.lines.len() - 1`
+  pub fn play_pattern(&self, pattern: Pattern, loop_count: u8) -> Result<(), BlinkError> {
+    if pattern.lines.is_empty() {
+      return Ok(());
+    }
+
+    for (i, line) in pattern.lines.iter().enumerate() {
+      self.send(Message::SetLedNum(line.ledn))?;
+      self.send(Message::SetLinePattern(line.color, line.duration, i as u8))?;
+    }
+
+    self.send(Message::PlayLoop {
+      on: true,
+      start_pos: 0,
+      end_pos: (pattern.lines.len() - 1) as u8,
+      loop_count,
+    })?;
+
+    Ok(())
   }
 }
