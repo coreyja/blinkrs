@@ -7,7 +7,7 @@ pub enum BlinkError {
   /// TODO: Make this doc better
   #[error("not found")]
   NotFound,
-  /// Could not list USB devices, wrapbs an rusb::Error
+  /// Could not list USB devices, wraps an rusb::Error
   #[error("device list error")]
   DeviceListError(#[from] rusb::Error),
 }
