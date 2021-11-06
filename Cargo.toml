@@ -20,3 +20,4 @@ path = "src/bin/main.rs"
 
 [dependencies]
 rusb = "0.8.1"
+thiserror = "1.0.30"
