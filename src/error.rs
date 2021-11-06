@@ -1,4 +1,3 @@
-use std::fmt;
 use thiserror::Error;
 
 /// An Error from the USB Protocol
@@ -10,9 +9,5 @@ pub enum BlinkError {
   NotFound,
   /// Could not list USB devices, wrapbs an rusb::Error
   #[error("device list error")]
-  DeviceListError {
-    #[from]
-    source: rusb::Error,
-    backtrace: Backtrace,
-  },
+  DeviceListError(#[from] rusb::Error),
 }
