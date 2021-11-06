@@ -10,5 +10,9 @@ pub enum BlinkError {
   NotFound,
   /// Could not list USB devices, wrapbs an rusb::Error
   #[error("device list error")]
-  DeviceListError(#[from] rusb::Error),
+  DeviceListError {
+    #[from]
+    source: rusb::Error,
+    backtrace: Backtrace,
+  },
 }
